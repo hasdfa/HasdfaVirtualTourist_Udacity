@@ -15,10 +15,8 @@ class MapViewController: CoreDataViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var deletePinsViewHelper: UIView!
     
-    var localPins: [Pin] = []
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupDelegate()
         
         // Get the stack
         let delegate = UIApplication.shared.delegate as! AppDelegate
@@ -100,29 +98,21 @@ class MapViewController: CoreDataViewController {
         UserDefaults.standard.set(mapView.camera.centerCoordinate.latitude, forKey: "mc_latitude")
         UserDefaults.standard.set(mapView.camera.centerCoordinate.longitude, forKey: "mc_longitude")
     }
-}
-
-// CoreDataVC "delegates"
-extension MapViewController {
-    fileprivate func setupDelegate(){
-        reloadData = {
-            self.setupMapView()
-        }
-        insertItem = {
-            indexPath -> Void in
-            
-        }
-        deleteItem = {
-            indexPath -> Void in
-            
-        }
-        updateItem = {
-            indexPath -> Void in
-            
-        }
-        didChangeUpdates = {
-            
-        }
+    
+    override func reloadData(){
+        self.setupMapView()
+    }
+    override func insertItem(_ indexPath: IndexPath) {
+        self.setupMapView()
+    }
+    override func deleteItem(_ indexPath: IndexPath) {
+        self.setupMapView()
+    }
+    override func updateItem(_ indexPath: IndexPath) {
+        self.setupMapView()
+    }
+    override func didChangeUpdates() {
+        
     }
 }
 
@@ -130,11 +120,28 @@ extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if isEditingMapPins {
             mapView.removeAnnotation(view.annotation!)
-            
         } else {
             if let nextVC = self.storyboard?.instantiateViewController(withIdentifier: "photoVC") as? PhotoAlbumViewController {
+                // Create Fetch Request
+                let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
+                
+                fr.sortDescriptors = []
+                
+                // So far we have a search that will match ALL notes. However, we're
+                // only interested in those within the current notebook:
+                // NSPredicate to the rescue!
+                let pin = (view.annotation as! MKPinPlacemark).pin
+                
+                fr.predicate = NSPredicate(format: "notebook = %@", argumentArray: [pin!])
+                
+                // Create FetchedResultsController
+                let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext:fetchedResultsController!.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
+                
+                // Inject it into the notesVC
+                nextVC.fetchedResultsController = fc
+                
                 nextVC.annotation = view.annotation
-                nextVC.pin = (view.annotation as? MKPinPlacemark)?.pin
+                nextVC.pin = (view.annotation as! MKPinPlacemark).pin
                 self.navigationController!.pushViewController(nextVC, animated: true)
             }
         }

@@ -25,22 +25,19 @@ class CoreDataViewController: UIViewController {
         }
     }
     
-    var reloadData: () -> Void = {
-        fatalError("reloadData(_:) Must be implemented")
-    }
-    var insertItem: (IndexPath) -> Void = {
-        indexPath -> Void in
-        fatalError("insertItem(_:) Must be implemented")
-    }
-    var deleteItem: (IndexPath) -> Void = {
-        indexPath -> Void in
-        fatalError("deleteItem(_:) Must be implemented")
-    }
-    var updateItem: (IndexPath) -> Void = {
-        indexPath -> Void in
+    func reloadData(){
         fatalError("updateItem(_:) Must be implemented")
     }
-    var didChangeUpdates: () -> Void = {
+    func insertItem(_ indexPath: IndexPath) {
+        fatalError("insertItem(_:) Must be implemented")
+    }
+    func deleteItem(_ indexPath: IndexPath) {
+        fatalError("deleteItem(_:) Must be implemented")
+    }
+    func updateItem(_ indexPath: IndexPath) {
+        fatalError("updateItem(_:) Must be implemented")
+    }
+    func didChangeUpdates() {
         fatalError("didChangeUpdates(_:) Must be implemented")
     }
     

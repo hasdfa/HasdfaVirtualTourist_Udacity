@@ -22,7 +22,6 @@ class PhotoAlbumViewController: CoreDataViewController {
     var photos: [Photo] = []
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupDelegate()
         
         // Get the stack
         let delegate = UIApplication.shared.delegate as! AppDelegate
@@ -34,8 +33,7 @@ class PhotoAlbumViewController: CoreDataViewController {
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
         
-        
-        if self.photos.count == 0 {
+        if fetchedResultsController?.sections?.count == 0 {
             NetworksHelper.searchByLatLon(annotation!.coordinate.latitude, annotation!.coordinate.longitude, pin: pin, {
                 
                 
@@ -46,6 +44,8 @@ class PhotoAlbumViewController: CoreDataViewController {
                     self.collectionView.reloadData()
                 }
             })
+        } else {
+            
         }
 
         // Setup Flow layout
@@ -65,8 +65,22 @@ class PhotoAlbumViewController: CoreDataViewController {
         mapView.camera.centerCoordinate = _2d
         mapView.camera.altitude = 1_000_000
     }
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
+    
+    override func reloadData(){
+        self.collectionView.reloadData()
+    }
+    override func insertItem(_ indexPath: IndexPath) {
+        self.collectionView.insertItems(at: [indexPath])
+    }
+    override func deleteItem(_ indexPath: IndexPath) {
+        self.collectionView.deleteItems(at: [indexPath])
+    }
+    override func updateItem(_ indexPath: IndexPath) {
+        self.collectionView.deleteItems(at: [indexPath])
+        self.collectionView.insertItems(at: [indexPath])
+    }
+    override func didChangeUpdates() {
+        
     }
 }
 
@@ -79,36 +93,12 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     }
 }
 
-// CoreDataVC "delegates"
-extension PhotoAlbumViewController {
-    fileprivate func setupDelegate(){
-        reloadData = {
-            self.collectionView.reloadData()
-        }
-        insertItem = {
-            indexPath -> Void in
-            self.collectionView.insertItems(at: [indexPath])
-        }
-        deleteItem = {
-            indexPath -> Void in
-            self.collectionView.deleteItems(at: [indexPath])
-        }
-        updateItem = {
-            indexPath -> Void in
-            self.collectionView.deleteItems(at: [indexPath])
-            self.collectionView.insertItems(at: [indexPath])
-        }
-        didChangeUpdates = {
-            
-        }
-    }
-}
-
 extension PhotoAlbumViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "dCell", for: indexPath) as? PhotoCell
         
+        let photo: Photo = fetchedResultsController?.object(at: indexPath) as! Photo
         if let cell = cell {
             if photos.count == 0 {
                 cell.progress.startAnimating()
