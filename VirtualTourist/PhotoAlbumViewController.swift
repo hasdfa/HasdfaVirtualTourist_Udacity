@@ -19,7 +19,6 @@ class PhotoAlbumViewController: CoreDataViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var collectionViewFlow: UICollectionViewFlowLayout!
     
-    var photos: [Photo] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -33,12 +32,8 @@ class PhotoAlbumViewController: CoreDataViewController {
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
         
-        if fetchedResultsController?.sections?.count == 0 {
+        if fetchedResultsController?.sections?.count == 1 {
             NetworksHelper.searchByLatLon(annotation!.coordinate.latitude, annotation!.coordinate.longitude, pin: pin, {
-                
-                
-                print("photosCount is ", self.photos.count)
-                
                 DispatchQueue.main.async {
                     print("loaded")
                     self.collectionView.reloadData()
@@ -67,17 +62,25 @@ class PhotoAlbumViewController: CoreDataViewController {
     }
     
     override func reloadData(){
-        self.collectionView.reloadData()
+        if isViewLoaded {
+            self.collectionView.reloadData()
+        }
     }
     override func insertItem(_ indexPath: IndexPath) {
-        self.collectionView.insertItems(at: [indexPath])
+        if isViewLoaded {
+            self.collectionView.insertItems(at: [indexPath])
+        }
     }
     override func deleteItem(_ indexPath: IndexPath) {
-        self.collectionView.deleteItems(at: [indexPath])
+        if isViewLoaded {
+            self.collectionView.deleteItems(at: [indexPath])
+        }
     }
     override func updateItem(_ indexPath: IndexPath) {
-        self.collectionView.deleteItems(at: [indexPath])
-        self.collectionView.insertItems(at: [indexPath])
+        if isViewLoaded {
+            self.collectionView.deleteItems(at: [indexPath])
+            self.collectionView.insertItems(at: [indexPath])
+        }
     }
     override func didChangeUpdates() {
         
@@ -89,32 +92,37 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
         return 1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photos.count == 0 ? 21 : photos.count
+        return fetchedResultsController?.sections?.count ?? 0 != 0 ? fetchedResultsController?.sections?.count ?? 0 : 21
     }
 }
 
 extension PhotoAlbumViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "dCell", for: indexPath) as? PhotoCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "dCell", for: indexPath)
         
-        let photo: Photo = fetchedResultsController?.object(at: indexPath) as! Photo
-        if let cell = cell {
-            if photos.count == 0 {
-                cell.progress.startAnimating()
-                cell.layer.borderColor = UIColor.blue.cgColor
-                cell.layer.borderWidth = 3
-            } else {
-                if cell.progress.isAnimating {
-                    cell.progress.stopAnimating()
+        if let cell = cell as? PhotoCell {
+            print((fetchedResultsController?.sections?.count ?? 0)-1)
+            if (fetchedResultsController?.sections?.count ?? 0)-1 > indexPath.row {
+                if let photo = fetchedResultsController?.object(at: indexPath) as? Photo {
+                    if cell.progress.isAnimating {
+                        cell.progress.stopAnimating()
+                    }
+                    cell.thumbnail.image = UIImage(data: photo.imageData! as Data)
+                    cell.layer.borderColor = UIColor.clear.cgColor
+                    cell.layer.borderWidth = 0
+                } else {
+                    cell.progress.startAnimating()
+                    cell.layer.borderColor = UIColor.blue.cgColor
+                    cell.layer.borderWidth = 3
                 }
-                cell.thumbnail.image = UIImage(data: photos[indexPath.row].imageData! as Data)
-                cell.layer.borderColor = UIColor.clear.cgColor
-                cell.layer.borderWidth = 0
             }
+        } else {
+            cell.backgroundView?.backgroundColor = UIColor.red
         }
         
-        return cell ?? UICollectionViewCell()
+        
+        return cell
     }
     
 }
