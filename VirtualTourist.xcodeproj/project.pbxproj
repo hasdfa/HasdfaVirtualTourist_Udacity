@@ -103,7 +103,6 @@
 		372C15E41F2B73D300C2D042 /* Support files */ = {
 			isa = PBXGroup;
 			children = (
-				37CF966A1F2A9233005F587D /* AppDelegate.swift */,
 				37CF96791F2A9233005F587D /* Info.plist */,
 				37CF96711F2A9233005F587D /* VirtualTourist.xcdatamodeld */,
 			);
@@ -155,6 +154,7 @@
 		37CF96691F2A9233005F587D /* VirtualTourist */ = {
 			isa = PBXGroup;
 			children = (
+				37CF966A1F2A9233005F587D /* AppDelegate.swift */,
 				372C15E61F2B73FF00C2D042 /* utils */,
 				372C15E31F2B6DC600C2D042 /* Controllers */,
 				372C15E51F2B73EC00C2D042 /* View */,

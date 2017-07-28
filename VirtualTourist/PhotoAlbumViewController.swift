@@ -22,17 +22,7 @@ class PhotoAlbumViewController: CoreDataViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Get the stack
-        let delegate = UIApplication.shared.delegate as! AppDelegate
-        let stack = delegate.stack
-        
-        // Create a fetchrequest
-        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
-        fr.sortDescriptors = []
-        
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
-        
-        if fetchedResultsController?.sections?.count == 1 {
+        if fetchedResultsController?.fetchedObjects?.count ?? 0 == 0 {
             NetworksHelper.searchByLatLon(annotation!.coordinate.latitude, annotation!.coordinate.longitude, pin: pin, {
                 DispatchQueue.main.async {
                     print("loaded")
@@ -40,7 +30,7 @@ class PhotoAlbumViewController: CoreDataViewController {
                 }
             })
         } else {
-            
+            self.collectionView.reloadData()
         }
 
         // Setup Flow layout
@@ -92,7 +82,8 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
         return 1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchedResultsController?.sections?.count ?? 0 != 0 ? fetchedResultsController?.sections?.count ?? 0 : 21
+        let count = fetchedResultsController?.fetchedObjects?.count ?? 0
+        return count == 0 ? 21 : count
     }
 }
 
@@ -102,8 +93,8 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "dCell", for: indexPath)
         
         if let cell = cell as? PhotoCell {
-            print((fetchedResultsController?.sections?.count ?? 0)-1)
-            if (fetchedResultsController?.sections?.count ?? 0)-1 > indexPath.row {
+            let count = fetchedResultsController?.fetchedObjects?.count ?? 0
+            if count > indexPath.row {
                 if let photo = fetchedResultsController?.object(at: indexPath) as? Photo {
                     if cell.progress.isAnimating {
                         cell.progress.stopAnimating()
@@ -115,7 +106,7 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
                     cell.progress.startAnimating()
                     cell.layer.borderColor = UIColor.blue.cgColor
                     cell.layer.borderWidth = 3
-                }
+                } 
             }
         } else {
             cell.backgroundView?.backgroundColor = UIColor.red

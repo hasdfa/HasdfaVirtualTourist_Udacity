@@ -21,7 +21,7 @@ class MapViewController: CoreDataViewController {
         // Get the stack
         let delegate = UIApplication.shared.delegate as! AppDelegate
         let stack = delegate.stack
-        
+         
         // Create a fetchrequest
         let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
         fr.sortDescriptors = []
@@ -39,6 +39,7 @@ class MapViewController: CoreDataViewController {
     func setupMapView(){
         mapView.removeAnnotations(mapView.annotations)
         
+        print("count", fetchedResultsController?.fetchedObjects?.count ?? -1)
         for pin in fetchedResultsController?.fetchedObjects as! [Pin] {
             let annotation = MKPinPlacemark(coordinate: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.lon))
             annotation.pin = pin
@@ -86,11 +87,18 @@ class MapViewController: CoreDataViewController {
         let touchPoint = gestureRecognizer.location(in: mapView)
         let touchMapCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
         let currrentAnnotation = MKPinPlacemark(coordinate: touchMapCoordinate)
-        let pin = Pin(context: ((UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext)!)
+        let pin = Pin(context: (UIApplication.shared.delegate as! AppDelegate).stack.context)
         pin.lon = currrentAnnotation.coordinate.longitude
         pin.lat = currrentAnnotation.coordinate.latitude
         currrentAnnotation.pin = pin
         mapView.addAnnotation(currrentAnnotation)
+        
+        do {
+            try (UIApplication.shared.delegate as! AppDelegate).stack.context.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+        print(fetchedResultsController?.fetchedObjects?.count ?? -100)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -100,19 +108,24 @@ class MapViewController: CoreDataViewController {
     }
     
     override func reloadData(){
+        print("reloadData")
         self.setupMapView()
     }
     override func insertItem(_ indexPath: IndexPath) {
+        print("insertItem")
         self.setupMapView()
     }
     override func deleteItem(_ indexPath: IndexPath) {
+        print("deleteItem")
         self.setupMapView()
     }
     override func updateItem(_ indexPath: IndexPath) {
+        print("updateItem")
         self.setupMapView()
     }
     override func didChangeUpdates() {
-        
+        print("didChangeUpdates")
+        reloadData()
     }
 }
 
@@ -120,28 +133,24 @@ extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if isEditingMapPins {
             mapView.removeAnnotation(view.annotation!)
+            if let pin = (view.annotation as? MKPinPlacemark)?.pin {
+                (UIApplication.shared.delegate as! AppDelegate).stack.context.delete(pin)
+            }
         } else {
             if let nextVC = self.storyboard?.instantiateViewController(withIdentifier: "photoVC") as? PhotoAlbumViewController {
                 // Create Fetch Request
                 let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
-                
                 fr.sortDescriptors = []
-                
-                // So far we have a search that will match ALL notes. However, we're
-                // only interested in those within the current notebook:
-                // NSPredicate to the rescue!
-                let pin = (view.annotation as! MKPinPlacemark).pin
-                
-                fr.predicate = NSPredicate(format: "notebook = %@", argumentArray: [pin!])
-                
-                // Create FetchedResultsController
-                let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext:fetchedResultsController!.managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
-                
-                // Inject it into the notesVC
+                let pin = (view.annotation as? MKPinPlacemark)?.pin
+
+                fr.predicate = NSPredicate(format: "pin = %@", argumentArray: [pin!])
+
+                let fc = NSFetchedResultsController(fetchRequest: fr, managedObjectContext:(UIApplication.shared.delegate as! AppDelegate).stack.context, sectionNameKeyPath: nil, cacheName: nil)
+
                 nextVC.fetchedResultsController = fc
-                
+
                 nextVC.annotation = view.annotation
-                nextVC.pin = (view.annotation as! MKPinPlacemark).pin
+                nextVC.pin = pin
                 self.navigationController!.pushViewController(nextVC, animated: true)
             }
         }

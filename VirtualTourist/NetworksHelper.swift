@@ -49,7 +49,7 @@ class NetworksHelper {
                     if let photo = json["photos"] as? [String: Any] {
                         if let photoArray = photo["photo"] as? [[String: Any]] {
                             
-                            let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+                            let context = (UIApplication.shared.delegate as! AppDelegate).stack.context
                             
                             for i in 0...(photoArray.count > 20 ? 20 : photoArray.count) {
                                 if let strUrl = photoArray[i]["url_m"] as? String {

@@ -80,8 +80,9 @@ extension CoreDataViewController: NSFetchedResultsControllerDelegate {
         self.reloadData()
     }
     
-//    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-//        
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        
+        print("controller did change sectionInfo")
 //        let set = IndexSet(integer: sectionIndex)
 //        
 //        switch (type) {
@@ -95,7 +96,7 @@ extension CoreDataViewController: NSFetchedResultsControllerDelegate {
 //            // irrelevant in our case
 //            break
 //        }
-//    }
+    }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         
