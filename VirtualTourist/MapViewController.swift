@@ -8,35 +8,45 @@
 
 import UIKit
 import MapKit
+import CoreData
 
-class MapViewController: UIViewController {
+class MapViewController: CoreDataViewController {
 
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var deletePinsViewHelper: UIView!
     
     var localPins: [Pin] = []
-
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupDelegate()
         
+        // Get the stack
+        let delegate = UIApplication.shared.delegate as! AppDelegate
+        let stack = delegate.stack
+        
+        // Create a fetchrequest
+        let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+        fr.sortDescriptors = []
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: stack.context, sectionNameKeyPath: nil, cacheName: nil)
+        
+        setupMapView()
         mapView.delegate = self
         
         let longPressRecogniser = UILongPressGestureRecognizer(target: self, action: #selector(MapViewController.handleLongPress(_:)))
         longPressRecogniser.minimumPressDuration = 0.33
         mapView.addGestureRecognizer(longPressRecogniser)
+    }
+    
+    func setupMapView(){
+        mapView.removeAnnotations(mapView.annotations)
         
-        let context = (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext
-        
-        do {
-            localPins = (try context?.fetch(Pin.fetchRequest()))!
-            for pin in localPins {
-                let annotation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.lon))
-                DispatchQueue.main.async {
-                    self.mapView.addAnnotation(annotation)
-                }
+        for pin in fetchedResultsController?.fetchedObjects as! [Pin] {
+            let annotation = MKPinPlacemark(coordinate: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.lon))
+            annotation.pin = pin
+            DispatchQueue.main.async {
+                self.mapView.addAnnotation(annotation)
             }
-        } catch {
-            print(error.localizedDescription)
         }
     }
     
@@ -67,7 +77,7 @@ class MapViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        mapView.camera.altitude = 1_000_000
+        mapView.camera.altitude = UserDefaults.standard.double(forKey: "mc_altitude")
         mapView.centerCoordinate.longitude = UserDefaults.standard.double(forKey: "mc_latitude")
         mapView.centerCoordinate.latitude = UserDefaults.standard.double(forKey: "mc_longitude")
     }
@@ -85,20 +95,42 @@ class MapViewController: UIViewController {
         mapView.addAnnotation(currrentAnnotation)
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        UserDefaults.standard.set(mapView.centerCoordinate.latitude, forKey: "mc_latitude")
-        UserDefaults.standard.set(mapView.centerCoordinate.longitude, forKey: "mc_longitude")
+    override func viewWillDisappear(_ animated: Bool) {
+        UserDefaults.standard.set(mapView.camera.altitude, forKey: "mc_altitude")
+        UserDefaults.standard.set(mapView.camera.centerCoordinate.latitude, forKey: "mc_latitude")
+        UserDefaults.standard.set(mapView.camera.centerCoordinate.longitude, forKey: "mc_longitude")
     }
 }
 
+// CoreDataVC "delegates"
+extension MapViewController {
+    fileprivate func setupDelegate(){
+        reloadData = {
+            self.setupMapView()
+        }
+        insertItem = {
+            indexPath -> Void in
+            
+        }
+        deleteItem = {
+            indexPath -> Void in
+            
+        }
+        updateItem = {
+            indexPath -> Void in
+            
+        }
+        didChangeUpdates = {
+            
+        }
+    }
+}
 
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if isEditingMapPins {
             mapView.removeAnnotation(view.annotation!)
-            if let pin = ((view.annotation as? MKPinPlacemark)?.pin) {
-                (UIApplication.shared.delegate as? AppDelegate)?.persistentContainer.viewContext.delete(pin)
-            }
+            
         } else {
             if let nextVC = self.storyboard?.instantiateViewController(withIdentifier: "photoVC") as? PhotoAlbumViewController {
                 nextVC.annotation = view.annotation

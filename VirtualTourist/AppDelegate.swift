@@ -12,12 +12,15 @@ import CoreData
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    // MARK: Properties
     var window: UIWindow?
-
+    let stack = CoreDataStack(modelName: "VirtualTourist")!
+    
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         if UserDefaults.standard.value(forKey: "isFirst") == nil{
             UserDefaults.standard.set(false, forKey: "isFirst")
+            UserDefaults.standard.set(1_500_000, forKey: "mc_altitude")
             UserDefaults.standard.set(48.46, forKey: "mc_latitude")
             UserDefaults.standard.set(35.05, forKey: "mc_longitude")
         }
