@@ -47,17 +47,26 @@ class NetworksHelper {
             do {
                 if let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] {
                     if let photo = json["photos"] as? [String: Any] {
-                        if let photoArray = photo["photo"] as? [[String: Any]] {
+                        if var photoArray = photo["photo"] as? [[String: Any]] {
                             
                             let context = (UIApplication.shared.delegate as! AppDelegate).stack.context
                             
-                            for i in 0...(photoArray.count > 20 ? 20 : photoArray.count) {
-                                if let strUrl = photoArray[i]["url_m"] as? String {
-                                    if let url = URL(string: strUrl) {
-                                        print("url:", url.absoluteString)
-                                        let imgModel = Photo(context: context)
-                                        imgModel.imageData = NSData(contentsOf: url)
-                                        imgModel.pin = pin
+                            let max = (photoArray.count > 20 ? 20 : photoArray.count)
+                            print(max, "max")
+                            print(photoArray)
+                            
+                            // random
+                            photoArray = photoArray.shuffle
+                            
+                            if max > 0 {
+                                for i in 0...max {
+                                    if let strUrl = photoArray[i]["url_m"] as? String {
+                                        if let url = URL(string: strUrl) {
+                                            print("url:", url.absoluteString)
+                                            let imgModel = Photo(context: context)
+                                            imgModel.imageData = NSData(contentsOf: url)
+                                            imgModel.pin = pin
+                                        }
                                     }
                                 }
                             }
@@ -73,7 +82,6 @@ class NetworksHelper {
         })
         task.resume()
     }
-
     
     // MARK: Helper for Creating a URL from Parameters
     
@@ -107,5 +115,19 @@ class NetworksHelper {
     
     private static func isCoordValid(_ coord: Double, forRange: (Double, Double)) -> Bool {
         return !(coord < forRange.0 || coord > forRange.1)
+    }
+}
+
+
+extension Array {
+    var shuffle:[Element] {
+        var elements = self
+        for index in 0..<elements.count {
+            let anotherIndex = Int(arc4random_uniform(UInt32(elements.count-index)))+index
+            if anotherIndex != index {
+                swap(&elements[index], &elements[anotherIndex])
+            }
+        }
+        return elements
     }
 }

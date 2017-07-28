@@ -14,7 +14,40 @@ class PhotoAlbumViewController: CoreDataViewController {
 
     var annotation: MKAnnotation? = nil
     var pin: Pin? = nil
+    var selectedItems: [PhotoCell] = []
     
+    func updateWhenSelected(){
+//        if selectedItems.count > 0 {
+//            self.newCollection.titleLabel?.text = "Remove Selected Picture"
+//        } else {
+//            self.newCollection.titleLabel?.text = "New Collection"
+//        }
+    }
+    
+    @IBAction func newCollectionAction(_ sender: UIButton) {
+        if let objects = fetchedResultsController?.fetchedObjects as? [Photo] {
+            for o in objects {
+                (UIApplication.shared.delegate as! AppDelegate).stack.context.delete(o)
+            }
+        }
+        NetworksHelper.searchByLatLon(annotation!.coordinate.latitude, annotation!.coordinate.longitude, pin: pin, {
+            DispatchQueue.main.async {
+                print("loaded")
+                self.collectionView.reloadData()
+            }
+        })
+    }
+    @IBAction func removeSelectedAction(_ sender: UIButton) {
+        if selectedItems.count > 0 {
+            var indexPaths = [IndexPath]()
+            for _i in selectedItems {
+                indexPaths.append(_i.indexPath)
+            }
+            collectionView.deleteItems(at: indexPaths)
+        }
+    }
+    @IBOutlet weak var removeSelected: UIButton!
+    @IBOutlet weak var newCollection: UIButton!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var collectionViewFlow: UICollectionViewFlowLayout!
@@ -93,9 +126,13 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "dCell", for: indexPath)
         
         if let cell = cell as? PhotoCell {
+            cell.indexPath = indexPath
+            
+            cell.isStateSelected = false
             let count = fetchedResultsController?.fetchedObjects?.count ?? 0
             if count > indexPath.row {
                 if let photo = fetchedResultsController?.object(at: indexPath) as? Photo {
+                    cell.photoObj = photo
                     if cell.progress.isAnimating {
                         cell.progress.stopAnimating()
                     }
@@ -112,8 +149,30 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
             cell.backgroundView?.backgroundColor = UIColor.red
         }
         
-        
         return cell
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as! PhotoCell
+        cell.isStateSelected = !cell.isStateSelected
+        
+        cell.setSelectionState(selected: cell.isStateSelected)
+        if cell.isStateSelected {
+            selectedItems.append(cell)
+        } else {
+            if let index = selectedItems.index(of: cell) {
+                selectedItems.remove(at: index)
+            }
+        }
+        
+        if selectedItems.count == 0 {
+            self.newCollection.alpha = 1
+            self.removeSelected.alpha = 0
+        } else {
+            self.newCollection.alpha = 0
+            self.removeSelected.alpha = 1
+        }
     }
     
 }

@@ -65,11 +65,12 @@
                     <connections>
                         <outlet property="deletePinsViewHelper" destination="CVI-WX-Dnz" id="UP0-9K-HZK"/>
                         <outlet property="mapView" destination="weP-Tg-aIN" id="4xk-3g-BoY"/>
+                        <segue destination="fRf-Q7-2aj" kind="show" id="Mbw-rA-EWW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1076" y="138.98050974512745"/>
+            <point key="canvasLocation" x="1151" y="139"/>
         </scene>
         <!--Photo Album View Controller-->
         <scene sceneID="jxC-du-XeS">
@@ -83,14 +84,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="zZP-gS-coZ">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="200"/>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" zoomEnabled="NO" scrollEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" showsBuildings="NO" showsCompass="NO" showsPointsOfInterest="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zZP-gS-coZ">
+                                <rect key="frame" x="0.0" y="64" width="375" height="200"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="eaI-Kw-2XL"/>
                                 </constraints>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="jMO-Wc-PBF">
-                                <rect key="frame" x="0.0" y="200" width="375" height="467"/>
+                                <rect key="frame" x="0.0" y="264" width="375" height="403"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="ILR-SH-suj">
                                     <size key="itemSize" width="128" height="128"/>
@@ -112,45 +113,90 @@
                                                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="7oC-ij-LgX">
                                                     <rect key="frame" x="54" y="54" width="20" height="20"/>
                                                 </activityIndicatorView>
+                                                <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sk4-oA-Ey4">
+                                                    <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.5" colorSpace="calibratedRGB"/>
+                                                </view>
                                             </subviews>
                                         </view>
                                         <constraints>
+                                            <constraint firstItem="sk4-oA-Ey4" firstAttribute="leading" secondItem="UKo-TV-Biu" secondAttribute="leading" id="05z-Rh-uKy"/>
                                             <constraint firstAttribute="bottom" secondItem="2k6-Oj-bFZ" secondAttribute="bottom" id="6Hf-rS-k4W"/>
                                             <constraint firstItem="2k6-Oj-bFZ" firstAttribute="leading" secondItem="UKo-TV-Biu" secondAttribute="leading" id="7dw-Th-B3B"/>
+                                            <constraint firstAttribute="bottom" secondItem="sk4-oA-Ey4" secondAttribute="bottom" id="CRr-OR-Plz"/>
                                             <constraint firstItem="7oC-ij-LgX" firstAttribute="centerY" secondItem="UKo-TV-Biu" secondAttribute="centerY" id="CoQ-tP-6uc"/>
+                                            <constraint firstItem="sk4-oA-Ey4" firstAttribute="top" secondItem="UKo-TV-Biu" secondAttribute="top" id="bea-ug-r9r"/>
+                                            <constraint firstAttribute="trailing" secondItem="sk4-oA-Ey4" secondAttribute="trailing" id="fhr-rs-Nsv"/>
                                             <constraint firstItem="7oC-ij-LgX" firstAttribute="centerX" secondItem="UKo-TV-Biu" secondAttribute="centerX" id="muU-qm-obC"/>
                                             <constraint firstItem="2k6-Oj-bFZ" firstAttribute="top" secondItem="UKo-TV-Biu" secondAttribute="top" id="ubr-A6-aSK"/>
                                             <constraint firstAttribute="trailing" secondItem="2k6-Oj-bFZ" secondAttribute="trailing" id="zbw-As-rTd"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="progress" destination="7oC-ij-LgX" id="6TY-xj-XBf"/>
+                                            <outlet property="selectionView" destination="sk4-oA-Ey4" id="93V-ss-Lik"/>
                                             <outlet property="thumbnail" destination="2k6-Oj-bFZ" id="HCg-qK-cD4"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mWl-cT-Ea6">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uAb-Cd-ERR">
+                                        <rect key="frame" x="16" y="4" width="343" height="36"/>
+                                        <state key="normal" title="New Collection"/>
+                                        <connections>
+                                            <action selector="newCollectionAction:" destination="fRf-Q7-2aj" eventType="touchUpInside" id="LJ6-3a-V9r"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" alpha="0.0" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fE1-Df-w05">
+                                        <rect key="frame" x="16" y="4" width="343" height="36"/>
+                                        <state key="normal" title="Remove Selected Picture"/>
+                                        <connections>
+                                            <action selector="removeSelectedAction:" destination="fRf-Q7-2aj" eventType="touchUpInside" id="fBq-Kb-7AO"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" red="0.97636479139328003" green="0.97653168439865112" blue="0.97635418176651001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstItem="uAb-Cd-ERR" firstAttribute="leading" secondItem="mWl-cT-Ea6" secondAttribute="leading" constant="16" id="C8A-2G-M5h"/>
+                                    <constraint firstAttribute="bottom" secondItem="fE1-Df-w05" secondAttribute="bottom" constant="4" id="GcC-Y0-Ob8"/>
+                                    <constraint firstItem="uAb-Cd-ERR" firstAttribute="top" secondItem="mWl-cT-Ea6" secondAttribute="top" constant="4" id="HMt-h0-mHB"/>
+                                    <constraint firstAttribute="height" constant="44" id="UAr-H9-Bhv"/>
+                                    <constraint firstAttribute="bottom" secondItem="uAb-Cd-ERR" secondAttribute="bottom" constant="4" id="Wtt-Wb-CfT"/>
+                                    <constraint firstItem="fE1-Df-w05" firstAttribute="leading" secondItem="mWl-cT-Ea6" secondAttribute="leading" constant="16" id="gY4-EV-j0T"/>
+                                    <constraint firstItem="fE1-Df-w05" firstAttribute="top" secondItem="mWl-cT-Ea6" secondAttribute="top" constant="4" id="hcf-1s-cEA"/>
+                                    <constraint firstAttribute="trailing" secondItem="uAb-Cd-ERR" secondAttribute="trailing" constant="16" id="l20-Jw-MbN"/>
+                                    <constraint firstAttribute="trailing" secondItem="fE1-Df-w05" secondAttribute="trailing" constant="16" id="sdg-Ts-HxH"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="jMO-Wc-PBF" secondAttribute="trailing" id="6Vd-Kz-fKT"/>
-                            <constraint firstItem="zZP-gS-coZ" firstAttribute="top" secondItem="1k5-Oz-IGO" secondAttribute="top" id="G0u-m4-7hZ"/>
                             <constraint firstItem="jMO-Wc-PBF" firstAttribute="leading" secondItem="1k5-Oz-IGO" secondAttribute="leading" id="JXJ-UT-jK9"/>
                             <constraint firstItem="jMO-Wc-PBF" firstAttribute="top" secondItem="zZP-gS-coZ" secondAttribute="bottom" id="KIg-eC-eUj"/>
                             <constraint firstItem="DV4-Hd-gpr" firstAttribute="top" secondItem="jMO-Wc-PBF" secondAttribute="bottom" id="Nwh-zC-kHI"/>
                             <constraint firstItem="zZP-gS-coZ" firstAttribute="leading" secondItem="1k5-Oz-IGO" secondAttribute="leading" id="Z1h-el-qO2"/>
+                            <constraint firstItem="DV4-Hd-gpr" firstAttribute="top" secondItem="mWl-cT-Ea6" secondAttribute="bottom" id="b0l-11-obg"/>
+                            <constraint firstAttribute="trailing" secondItem="mWl-cT-Ea6" secondAttribute="trailing" id="bIc-u4-dgJ"/>
                             <constraint firstItem="jMO-Wc-PBF" firstAttribute="top" secondItem="zZP-gS-coZ" secondAttribute="bottom" id="dC4-Qe-q1d"/>
                             <constraint firstAttribute="trailing" secondItem="zZP-gS-coZ" secondAttribute="trailing" id="evC-CG-6LD"/>
+                            <constraint firstItem="mWl-cT-Ea6" firstAttribute="leading" secondItem="1k5-Oz-IGO" secondAttribute="leading" id="hR6-U6-uhT"/>
+                            <constraint firstItem="zZP-gS-coZ" firstAttribute="top" secondItem="HTU-D8-tCE" secondAttribute="bottom" id="iA5-Zi-8sF"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="jMO-Wc-PBF" id="HAS-GL-n1N"/>
                         <outlet property="collectionViewFlow" destination="ILR-SH-suj" id="uqu-y3-1bX"/>
                         <outlet property="mapView" destination="zZP-gS-coZ" id="iXx-p9-Koy"/>
+                        <outlet property="newCollection" destination="uAb-Cd-ERR" id="M5Q-gD-kQL"/>
+                        <outlet property="removeSelected" destination="fE1-Df-w05" id="JB9-SD-zEr"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wq3-Sd-Qgw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1829.5999999999999" y="138.98050974512745"/>
+            <point key="canvasLocation" x="2004" y="138.98050974512745"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="oUU-J6-V8U">

@@ -113,8 +113,8 @@
 			isa = PBXGroup;
 			children = (
 				37CF96BD1F2B2717005F587D /* MKPinPlacemark.swift */,
-				37CF966E1F2A9233005F587D /* Main.storyboard */,
 				37CF96B71F2AC499005F587D /* PhotoCell.swift */,
+				37CF966E1F2A9233005F587D /* Main.storyboard */,
 				37CF96741F2A9233005F587D /* Assets.xcassets */,
 				37CF96761F2A9233005F587D /* LaunchScreen.storyboard */,
 			);
