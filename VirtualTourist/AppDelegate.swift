@@ -24,8 +24,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UserDefaults.standard.set(48.46, forKey: "mc_latitude")
             UserDefaults.standard.set(35.05, forKey: "mc_longitude")
         }
-        stack.autoSave(30)
-        
         return true
     }
 

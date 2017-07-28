@@ -61,7 +61,7 @@ class NetworksHelper {
                                     }
                                 }
                             }
-                            try context.save()
+                            (UIApplication.shared.delegate as! AppDelegate).stack.save()
                         }
                     }
                 }

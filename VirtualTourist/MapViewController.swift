@@ -93,11 +93,7 @@ class MapViewController: CoreDataViewController {
         currrentAnnotation.pin = pin
         mapView.addAnnotation(currrentAnnotation)
         
-        do {
-            try (UIApplication.shared.delegate as! AppDelegate).stack.context.save()
-        } catch {
-            print(error.localizedDescription)
-        }
+        (UIApplication.shared.delegate as! AppDelegate).stack.save()
         print(fetchedResultsController?.fetchedObjects?.count ?? -100)
     }
 

@@ -128,10 +128,10 @@ extension CoreDataStack {
         // context). This last one might take some time and is done
         // in a background queue
         context.performAndWait() {
-            
             if self.context.hasChanges {
                 do {
                     try self.context.save()
+                    print("Context was saved")
                 } catch {
                     fatalError("Error while saving main context: \(error)")
                 }
@@ -140,6 +140,7 @@ extension CoreDataStack {
                 self.persistingContext.perform() {
                     do {
                         try self.persistingContext.save()
+                        print("persistingContext was saved")
                     } catch {
                         fatalError("Error while saving persisting context: \(error)")
                     }
